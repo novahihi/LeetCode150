@@ -2059,4 +2059,167 @@ public:
 };
 ```
 ---
+## Binary Tree General
+
+### 104. Maximum Depth of Binary Tree
+
+**Description**
+
+A binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+**Approach:** I use recursion to compare two depth if we move to left or right. I have made a animation.
+
+![image](https://hackmd.io/_uploads/HkyT2GEVge.png)
+
+```cpp
+class Solution {
+public:
+    void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+    int i = 0, j = 0;
+    vector <int> temp;
+    while (i<m&&j<n) {
+        if (nums1[i] <= nums2[j]) {
+            temp.push_back(nums1[i]);
+            i++;
+        }
+        else {
+            temp.push_back(nums2[j]);
+            j++;
+        }
+    }
+        while (i<m) {
+            temp.push_back(nums1[i]);
+            i++; 
+        }
+        while (j<n) {
+            temp.push_back(nums2[j]);
+            j++;
+        }
+        for (i = 0; i<m+n;i++) nums1[i] = temp[i];
+    }  
+};
+```
+---
+### 100. Same Tree
+
+**Description**
+
+Given the roots of two binary trees p and q, write a function to check if they are the same or not.
+
+Two binary trees are considered the same if they are structurally identical, and the nodes have the same value.
+
+**Approach** 
+
+If both root p and q are nullptr, we stop recursion and return true. If p and q are existed and similar at value, we will check their left and right. If we can move to the last instruction, return false.
+
+```cpp
+class Solution {
+public:
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        if (!p && !q) {
+            return true;
+        }
+
+        if (p && q && p->val == q->val) {
+            return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
+        }
+        
+        return false;        
+    }
+};
+```
+---
+### 226. Invert Binary Tree
+
+**Description**
+
+Given the root of a binary tree, invert the tree, and return its root.
+
+![image](https://hackmd.io/_uploads/Hy4OKZpElx.png)
+
+
+**Approach** 
+
+Using a temp node to save the left node, and swap it with right. Calling the recursion of the left and the right.
+
+```cpp
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+    if (!root) return nullptr;
+    TreeNode* temp = root->left;
+    root->left = root->right;
+    root->right = temp;
+    invertTree(root->right);
+    invertTree(root->left);
+    return root;
+    }
+};
+```
+---
+### 101. Symmetric Tree
+
+**Description**
+
+Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+
+![image](https://hackmd.io/_uploads/SJokibT4ex.png)
+
+**Approach** 
+
+We have to create two function. First, ismirror to check each node at the mirror position. So we have to check t1->left and t2->val. The issynmetric just to use ismirror for 2 branchs of tree.
+
+```cpp
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+    if (!root) return nullptr;
+    TreeNode* temp = root->left;
+    root->left = root->right;
+    root->right = temp;
+    invertTree(root->right);
+    invertTree(root->left);
+    return root;
+    }
+};
+```
+---
+### 112. Path Sum
+
+**Description**
+
+Given the root of a binary tree and an integer targetSum, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals targetSum.
+
+
+![image](https://hackmd.io/_uploads/SyjJTzpVel.png)
+
+In the eg, if the target sum is 22 we return true.
+
+**Approach** 
+
+We use a stack which each elements is a pair of a node and a sum of every node from the root to that node (eg: pair 11 - 20). And we just check every single leafs.
+
+```cpp
+class Solution {
+public:
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        if (!root) return false;
+
+        stack<pair<TreeNode*, int>> st;
+        st.push({root, root->val});
+
+        while (!st.empty()) {
+            auto [node, sum] = st.top(); st.pop();
+            if (!node->left && !node->right) {
+                if (sum == targetSum) return true;
+            }
+            if (node->right) st.push({node->right, sum + node->right->val});
+            if (node->left)  st.push({node->left, sum + node->left->val});
+        }
+    return false;
+    }
+};
+```
+---
+
 
