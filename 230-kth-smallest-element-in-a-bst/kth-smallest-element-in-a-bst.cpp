@@ -12,7 +12,6 @@
 class Solution {
 public:
     int kthSmallest(TreeNode* root, int k) {
-    int cnt = 0;
     stack <TreeNode*> st;
     TreeNode* cur = root;
     while (!st.empty() || cur!=nullptr) {
