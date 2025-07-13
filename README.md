@@ -512,7 +512,7 @@ public:
 ### 135. Candy
 
 **Description**
-We have a list of ratings of children. This is to rules to allocate the candies for them:
+We have a list of ratings of  ren. This is to rules to allocate the candies for them:
 - Each child must have at least one candy.
 - Children with a higher rating get more candies than their neighbors (neighbor of i is i+1 and i-1).
 
@@ -2074,29 +2074,12 @@ A binary tree's maximum depth is the number of nodes along the longest path from
 ```cpp
 class Solution {
 public:
-    void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
-    int i = 0, j = 0;
-    vector <int> temp;
-    while (i<m&&j<n) {
-        if (nums1[i] <= nums2[j]) {
-            temp.push_back(nums1[i]);
-            i++;
-        }
-        else {
-            temp.push_back(nums2[j]);
-            j++;
-        }
+    int maxDepth(TreeNode* root) {
+    if (!root) return 0;
+    int left = maxDepth(root->left);
+    int right = maxDepth(root->right);
+    return max(left, right) + 1;
     }
-        while (i<m) {
-            temp.push_back(nums1[i]);
-            i++; 
-        }
-        while (j<n) {
-            temp.push_back(nums2[j]);
-            j++;
-        }
-        for (i = 0; i<m+n;i++) nums1[i] = temp[i];
-    }  
 };
 ```
 ---
@@ -2184,6 +2167,186 @@ public:
 };
 ```
 ---
+### 105. Construct Binary Tree from Preorder and Inorder Traversal
+
+**Description**
+
+Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
+
+**Approach** 
+
+First, we consider that the first element in vector preorder is the root of tree. So we start from it.
+
+From preorder, we can know the order to create TreeNode from root -> left -> right. Inorder will let us know if a node has child node (left or right). So we will use a variation iodid to check the position of a node in  the tree.
+
+Ex: preorder = [3,9,20,15,7], inorder  = [9,3,15,20,7]
+
+Root = 3, iodid = 0, but inorder[iodid] is not 3 -> it has left child. So we check the next element in preorder. Now, it is 9 and it does not have chile, we have moved to the depth in left. We remove the top in stack and check next.
+
+
+```cpp
+class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+    TreeNode* root = new TreeNode(preorder[0]);
+    stack <TreeNode*> st;
+    st.push(root);
+    int iodid = 0;
+    for (int i = 1; i<preorder.size(); i++) {
+        TreeNode* temp = st.top();
+        int cur = preorder[i];
+        if (temp->val!=inorder[iodid]) {
+            temp->left = new TreeNode (cur);
+            st.push(temp->left);
+        }
+        else {
+        while (!st.empty() && st.top()->val==inorder[iodid]) {
+            temp = st.top();
+            st.pop();
+            iodid++;
+        }
+        temp->right = new TreeNode (cur);
+        st.push(temp->right);
+    }
+    }
+    return root;
+    }
+};
+```
+---
+### 117. Populating Next Right Pointers in Each Node II
+
+**Description**
+
+In a tree, we will link the node on the same level with a pointer next. In the last pointer in a level, the next ponter will be nullptr.
+
+**Approach** 
+
+We create a vector which include vector in each levels. Vector in each levels will include TreeNode* in that level. After complete the creation, we will set the next pointer in each child vector.
+
+
+```cpp
+class Solution {
+public:
+    Node* connect(Node* root) {
+        if (!root) return nullptr; 
+
+        vector<vector<Node*>> ln;
+        queue<pair<Node*, int>> q;
+        q.push({root, 0});
+
+        while (!q.empty()) {
+            auto [node, level] = q.front();
+            q.pop();
+
+            if (!node) continue;  // Fix 2: Bỏ qua nullptr
+
+            if (level == ln.size())
+                ln.push_back({});
+
+            ln[level].push_back(node);
+
+            q.push({node->left, level + 1});
+            q.push({node->right, level + 1});
+        }
+
+        for (int i = 0; i < ln.size(); i++) {
+            for (int e = 0; e < ln[i].size(); e++) {
+                if (e == ln[i].size() - 1) ln[i][e]->next = nullptr;
+                else ln[i][e]->next = ln[i][e + 1];
+            }
+        }
+        return root;
+    }
+};
+```
+---
+### 114. Flatten Binary Tree to Linked List
+
+**Description**
+
+From a binary tree, we make a linked list by TreeNode* but each node just have the right child. And the list will be in preorder.
+
+**Approach** 
+
+So we will travel the tree by preorder and push them in a queue to create linked list. After that, we check the queue to link the right pointer, and set the left pointer to nullptr.
+
+
+```cpp
+class Solution {
+public:
+    void flatten(TreeNode* root) {
+    if (!root) return;
+    queue <TreeNode*> q;
+    stack <TreeNode*> st;
+    st.push(root);
+    while (!st.empty()) {
+        TreeNode* temp = st.top();
+        st.pop();
+        q.push(temp);
+        if (temp->right) st.push (temp->right);
+        if (temp->left) st.push (temp->left);
+    } 
+    while (q.size()!=1) {
+        TreeNode* temp = q.front();
+        q.pop();
+        temp->right = q.front();
+        temp->left = nullptr;
+    } 
+    q.front()->right = nullptr;
+    }
+};
+```
+---
+### 129. Sum Root to Leaf Numbers
+
+**Description**
+
+In each branches, we have a number with each digits is made from TreeNode. The root will be the left digit of all numbers. So we have to calculate sum of them.
+
+**Approach** 
+
+First, we will create a map to know which is dad of each node. Using level traversal to make it, and if a treenode which don't have child, we will push it into a vector. After that, we will calculate sum from the vector and the map.
+
+
+```cpp
+class Solution {
+public:
+    int sumNumbers(TreeNode* root) {
+    unordered_map <TreeNode*, TreeNode*> m;
+    m[root] = nullptr;
+    vector <TreeNode*> v;
+    queue <TreeNode*> q;
+    TreeNode* cur;
+    q.push(root);
+    while (!q.empty()) {
+        cur = q.front();
+        q.pop();
+        if (cur->left==nullptr && cur->right == nullptr) v.push_back(cur);
+        if (cur->left) {
+            m[cur->left] = cur;
+            q.push(cur->left);
+        }
+        if (cur->right) {
+            m[cur->right] = cur;
+            q.push(cur->right);
+        }
+    }
+    int s = 0;
+    for (auto e: v) {
+        cur = e; long long d = 1;
+        while (cur!=nullptr) {
+            s = s + (cur->val)*d;
+            d = d*10;
+            cur = m[cur];
+        }
+    }
+    return s;     
+    }
+};
+
+```
+---
 ### 112. Path Sum
 
 **Description**
@@ -2221,5 +2384,107 @@ public:
 };
 ```
 ---
+## Binary Search Tree
 
+### 530. Minimum Absolute Difference in BST
 
+**Description**
+
+Given the root of a Binary Search Tree (BST), return the minimum absolute difference between the values of any two different nodes in the tree.
+
+**Approach**
+
+We know that: In a BST, from left to right, the value of each node is in an increasing order. So our target is check the difference of two adjacent node and update the minimum.
+
+```cpp
+class Solution {
+public:
+    int getMinimumDifference(TreeNode* root) {
+    if (!root) return 0;
+    int mini = 999999;
+    stack <TreeNode*> st;
+    TreeNode* prev = nullptr;
+    TreeNode* curr = root;
+        while (curr != nullptr || !st.empty()) {
+        while (curr != nullptr) {
+            st.push(curr);
+            curr = curr->left;
+        }
+        curr = st.top();
+        st.pop();
+        if (prev) mini = min(mini, curr->val - prev->val);
+        prev = curr;
+        curr = curr->right;
+    }
+   
+    return mini;
+    }
+};
+```
+---
+### 230. Kth Smallest Element in a BST
+
+**Description**
+
+Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.
+
+**Approach**
+
+Use InOrder traversal until k equal to zero. 
+
+```cpp
+class Solution {
+public:
+    int kthSmallest(TreeNode* root, int k) {
+    stack <TreeNode*> st;
+    TreeNode* cur = root;
+    while (!st.empty() || cur!=nullptr) {
+        while (cur!=nullptr) {
+            st.push (cur);
+            cur = cur->left;
+        }
+    //xu ly node
+    cur = st.top();
+    st.pop();
+    k--;
+    if (k==0) return cur->val;
+    cur = cur->right;
+    }
+    return root->val;
+    }
+};
+```
+---
+### 98. Validate Binary Search Tree
+
+**Description**
+
+Check a valid BST.
+
+**Approach**
+
+Use InOrder traversal to check from left to right. If the right node is smaller than or equal to the left node, we return false. 
+
+```cpp
+class Solution {
+public:
+    bool isValidBST(TreeNode* root) {
+    long long temp = -9999999999;
+    stack <TreeNode*> st;
+    TreeNode* cur = root;
+    while (!st.empty() || cur!=nullptr) {
+        while (cur!=nullptr) {
+            st.push (cur);
+            cur = cur->left;
+        }
+    //xu ly node
+    cur = st.top();
+    st.pop();
+    if (cur->val<=temp) return false;
+    else temp = cur->val;
+    cur = cur->right;
+    }
+    return true;   
+    }
+```
+---
