@@ -1,39 +1,38 @@
 class Solution {
 public:
     int evalRPN(vector<string>& tokens) {
+    // check until meet a symbol, make a calculation of the last 2 tokens in the top and push the result in the stack
     stack <int> st;
-    int a, b;
-    for (auto c : tokens) {
-        if (c == "+") {
-            a = st.top();
+    for (auto e: tokens) {
+        if (e=="+") {
+            int a = st.top();
             st.pop();
-            b = st.top();
+            int b = st.top();
             st.pop();
             st.push(a+b);
         }
-        else if (c == "-") {
-            a = st.top();
+        else if (e=="-") {
+            int a = st.top();
             st.pop();
-            b = st.top();
+            int b = st.top();
             st.pop();
             st.push(b-a);
         }
-        else if (c == "*") {
-            a = st.top();
+        else if (e=="*") {
+            int a = st.top();
             st.pop();
-            b = st.top();
+            int b = st.top();
             st.pop();
             st.push(a*b);
         }
-        else if (c == "/") {
-            a = st.top();
+        else if (e=="/") {
+            int a = st.top();
             st.pop();
-            b = st.top();
+            int b = st.top();
             st.pop();
             st.push(b/a);
         }
-        else st.push(stoi(c));
-
+        else st.push(stoi(e));
     }
     return st.top();
     }
